@@ -1,0 +1,44 @@
+# Airflow task log - ingest @ normal_run_1  (happy path, real counts)
+# ================================================================================
+[2026-09-09T15:56:46.975+0000] {taskinstance.py:2889} INFO - Executing <Task(_PythonDecoratedOperator): ingest> on 2026-09-09 15:56:44+00:00
+[2026-09-09T15:56:46.987+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'capstone_pipeline', 'ingest', 'normal_run_1', '--job-id', '2', '--raw', '--subdir', 'DAGS_FOLDER/capstone_pipeline.py', '--cfg-path', '/tmp/tmpj56q_1v1']
+[2026-09-09T15:56:46.990+0000] {standard_task_runner.py:105} INFO - Job 2: Subtask ingest
+[2026-09-09T15:56:47.104+0000] {task_command.py:467} INFO - Running <TaskInstance: capstone_pipeline.ingest normal_run_1 [running]> on host 2c596db98c67
+[2026-09-09T15:56:47.290+0000] {taskinstance.py:3132} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='capstone_pipeline' AIRFLOW_CTX_TASK_ID='ingest' AIRFLOW_CTX_EXECUTION_DATE='2026-09-09T15:56:44+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='normal_run_1'
+[2026-09-09T15:57:00.861+0000] {logging_mixin.py:190} INFO - created topic vitals.raw (partitions=3)
+[2026-09-09T15:57:00.900+0000] {logging_mixin.py:190} INFO - created topic vitals.deadletter (partitions=1)
+[2026-09-09T15:57:01.488+0000] {cluster.py:691} INFO - Coordinator for GROUP/vitals-ingest is MetadataResponseBroker(node_id='coordinator-1', host='kafka', port=19092, rack=None)
+[2026-09-09T15:57:01.488+0000] {base.py:851} INFO - Discovered coordinator coordinator-1 for group vitals-ingest
+[2026-09-09T15:57:01.493+0000] {consumer.py:550} INFO - Revoking previously assigned partitions () for group vitals-ingest
+[2026-09-09T15:57:01.494+0000] {base.py:746} INFO - (Re-)joining group vitals-ingest
+[2026-09-09T15:57:01.518+0000] {base.py:636} INFO - Received member id kafka-python-3.0.11-5ddefb7e-9bc9-4f0e-8abc-f4bc62a0468b for group vitals-ingest; will retry join-group
+[2026-09-09T15:57:01.519+0000] {base.py:746} INFO - (Re-)joining group vitals-ingest
+[2026-09-09T15:57:01.532+0000] {base.py:599} INFO - Successfully joined group vitals-ingest <Generation 1 (member_id: kafka-python-3.0.11-5ddefb7e-9bc9-4f0e-8abc-f4bc62a0468b, protocol: range)>
+[2026-09-09T15:57:01.550+0000] {consumer.py:370} INFO - Setting newly assigned partitions () for group vitals-ingest
+[2026-09-09T15:57:01.652+0000] {consumer.py:550} INFO - Revoking previously assigned partitions () for group vitals-ingest
+[2026-09-09T15:57:01.653+0000] {base.py:746} INFO - (Re-)joining group vitals-ingest
+[2026-09-09T15:57:01.680+0000] {base.py:599} INFO - Successfully joined group vitals-ingest <Generation 2 (member_id: kafka-python-3.0.11-5ddefb7e-9bc9-4f0e-8abc-f4bc62a0468b, protocol: range)>
+[2026-09-09T15:57:01.692+0000] {consumer.py:370} INFO - Setting newly assigned partitions (('vitals.raw', 0), ('vitals.raw', 1), ('vitals.raw', 2)) for group vitals-ingest
+[2026-09-09T15:57:01.869+0000] {logging_mixin.py:190} INFO -   DLQ p1@34: reading_id: String should have at least 1 character
+[2026-09-09T15:57:01.870+0000] {logging_mixin.py:190} INFO -   DLQ p1@36: consciousness: Input should be 'A', 'V', 'P' or 'U'
+[2026-09-09T15:57:01.871+0000] {logging_mixin.py:190} INFO -   DLQ p1@38: recorded_at: Value error, recorded_at 2026-09-11T15:54:14.622666+00:00 is in the future
+[2026-09-09T15:57:01.872+0000] {logging_mixin.py:190} INFO -   DLQ p1@50: diagnosis: Extra inputs are not permitted
+[2026-09-09T15:57:01.873+0000] {logging_mixin.py:190} INFO -   DLQ p1@51: heart_rate: Input should be a valid integer, unable to parse string as an integer
+[2026-09-09T15:57:01.873+0000] {logging_mixin.py:190} INFO -   DLQ p1@52: reading_id: Field required
+[2026-09-09T15:57:01.874+0000] {logging_mixin.py:190} INFO -   DLQ p1@59: heart_rate: Field required
+[2026-09-09T15:57:01.875+0000] {logging_mixin.py:190} INFO -   DLQ p1@67: recorded_at: Value error, recorded_at 2026-09-11T15:54:14.626171+00:00 is in the future
+[2026-09-09T15:57:01.876+0000] {logging_mixin.py:190} INFO -   DLQ p1@68: recorded_at: Field required
+[2026-09-09T15:57:01.877+0000] {logging_mixin.py:190} INFO -   DLQ p1@69: reading_id: Field required
+[2026-09-09T15:57:01.877+0000] {logging_mixin.py:190} INFO -   DLQ p1@78: heart_rate: Input should be greater than or equal to 20
+[2026-09-09T15:57:01.878+0000] {logging_mixin.py:190} INFO -   DLQ p1@82: reading_id: String should have at least 1 character
+[2026-09-09T15:57:01.879+0000] {logging_mixin.py:190} INFO -   DLQ p1@88: temperature_c: Input should be greater than or equal to 30
+[2026-09-09T15:57:01.880+0000] {logging_mixin.py:190} INFO -   DLQ p1@92: recorded_at: Value error, recorded_at 2026-09-11T15:54:14.627680+00:00 is in the future
+[2026-09-09T15:57:01.882+0000] {logging_mixin.py:190} INFO -   DLQ p1@115: heart_rate: Input should be less than or equal to 250
+[2026-09-09T15:57:01.882+0000] {logging_mixin.py:190} INFO -   DLQ p1@119: consciousness: Input should be 'A', 'V', 'P' or 'U'
+[2026-09-09T15:57:01.883+0000] {logging_mixin.py:190} INFO -   DLQ p1@124: spo2: Field required
+[2026-09-09T15:57:01.885+0000] {logging_mixin.py:190} INFO -   DLQ p1@146: diagnosis: Extra inputs are not permitted
+[2026-09-09T15:57:01.886+0000] {logging_mixin.py:190} INFO -   DLQ p1@157: consciousness: Input should be 'A', 'V', 'P' or 'U'
+[2026-09-09T15:57:01.886+0000] {logging_mixin.py:190} INFO -   DLQ p1@161: temperature_c: Input should be less than or equal to 45
+[2026-09-09T15:57:01.887+0000] {logging_mixin.py:190} INFO -   DLQ p1@165: reading_id: String should have at least 1 character
+[2026-09-09T15:57:17.712+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=capstone_pipeline, task_id=ingest, run_id=normal_run_1, execution_date=20260909T155644, start_date=20260909T155646, end_date=20260909T155717
+[2026-09-09T15:57:17.799+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0

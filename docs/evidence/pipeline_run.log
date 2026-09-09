@@ -1,0 +1,117 @@
+# Full pipeline run - python -m src.pipeline
+# 2026-09-09T17:56:59Z  |  seed 21, 1000 rows, 10% malformed
+# ================================================================
+pipeline run 01a08751-04eb-733e-8c97-c3a0ee28aca5
+created topic vitals.raw (partitions=3)
+created topic vitals.deadletter (partitions=1)
+  DLQ p0@5: temperature_c: Input should be less than or equal to 45
+  DLQ p0@9: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p0@11: spo2: Input should be less than or equal to 100
+  DLQ p0@16: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p0@45: heart_rate: Input should be less than or equal to 250
+  DLQ p0@57: heart_rate: Input should be a valid integer, unable to parse string as an integer
+  DLQ p0@62: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p0@65: heart_rate: Input should be a valid integer, unable to parse string as an integer
+  DLQ p0@75: spo2: Input should be less than or equal to 100
+  DLQ p0@79: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p0@92: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p0@98: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p0@102: diagnosis: Extra inputs are not permitted
+  DLQ p0@109: temperature_c: Input should be less than or equal to 45
+  DLQ p0@110: reading_id: Field required
+  DLQ p0@118: reading_id: Field required
+  DLQ p0@125: reading_id: String should have at least 1 character
+  DLQ p0@138: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p0@147: heart_rate: Field required
+  DLQ p0@158: heart_rate: Input should be less than or equal to 250
+  DLQ p0@160: temperature_c: Input should be less than or equal to 45
+  DLQ p0@161: spo2: Input should be less than or equal to 100
+  DLQ p0@192: temperature_c: Input should be less than or equal to 45
+  DLQ p0@200: reading_id: String should have at least 1 character
+  DLQ p0@244: recorded_at: Value error, recorded_at 2026-09-11T17:56:55.736892+00:00 is in the future
+  DLQ p0@246: resp_rate: Field required
+  DLQ p0@254: heart_rate: Input should be a valid integer, unable to parse string as an integer
+  DLQ p0@264: heart_rate: Field required
+  DLQ p0@270: recorded_at: Field required
+  DLQ p0@290: reading_id: String should have at least 1 character
+  DLQ p0@291: reading_id: String should have at least 1 character
+  DLQ p0@294: reading_id: Field required
+  DLQ p0@309: spo2: Field required
+  DLQ p0@326: diagnosis: Extra inputs are not permitted
+  DLQ p0@331: temperature_c: Input should be greater than or equal to 30
+  DLQ p0@340: recorded_at: Value error, recorded_at 2026-09-11T17:56:55.743416+00:00 is in the future
+  DLQ p0@347: heart_rate: Input should be greater than or equal to 20
+  DLQ p0@349: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p0@372: diagnosis: Extra inputs are not permitted
+  DLQ p0@380: heart_rate: Input should be a valid integer, unable to parse string as an integer
+  DLQ p2@3: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p2@6: spo2: Input should be less than or equal to 100
+  DLQ p2@21: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p2@24: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p2@40: diagnosis: Extra inputs are not permitted
+  DLQ p2@47: spo2: Input should be greater than or equal to 50
+  DLQ p2@62: heart_rate: Input should be a valid integer, unable to parse string as an integer
+  DLQ p2@64: reading_id: Field required
+  DLQ p2@79: recorded_at: Value error, recorded_at 2026-09-11T17:56:55.731866+00:00 is in the future
+  DLQ p2@80: reading_id: Field required
+  DLQ p2@91: temperature_c: Input should be less than or equal to 45
+  DLQ p2@95: diagnosis: Extra inputs are not permitted
+  DLQ p2@97: spo2: Input should be less than or equal to 100
+  DLQ p2@105: heart_rate: Field required
+  DLQ p2@106: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p2@115: heart_rate: Input should be greater than or equal to 20
+  DLQ p2@131: reading_id: Field required
+  DLQ p2@137: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p2@156: temperature_c: Input should be less than or equal to 45
+  DLQ p2@158: reading_id: Field required
+  DLQ p2@160: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p2@163: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p2@165: reading_id: Field required
+  DLQ p2@168: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p2@170: diagnosis: Extra inputs are not permitted
+  DLQ p2@173: diagnosis: Extra inputs are not permitted
+  DLQ p2@186: diagnosis: Extra inputs are not permitted
+  DLQ p2@187: heart_rate: Input should be a valid integer, unable to parse string as an integer
+  DLQ p2@191: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p2@193: recorded_at: Field required
+  DLQ p2@207: heart_rate: Input should be less than or equal to 250
+  DLQ p2@216: temperature_c: Input should be less than or equal to 45
+  DLQ p2@226: patient_id: String should match pattern '^P\d{6}$'
+  DLQ p2@244: reading_id: Field required
+  DLQ p2@248: spo2: Input should be less than or equal to 100
+  DLQ p2@280: spo2: Input should be less than or equal to 100
+  DLQ p2@291: spo2: Input should be greater than or equal to 50
+  DLQ p2@298: heart_rate: Input should be a valid integer, unable to parse string as an integer
+  DLQ p1@9: reading_id: Field required
+  DLQ p1@10: reading_id: Field required
+  DLQ p1@36: reading_id: String should have at least 1 character
+  DLQ p1@38: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p1@40: recorded_at: Value error, recorded_at 2026-09-11T17:56:55.726462+00:00 is in the future
+  DLQ p1@52: diagnosis: Extra inputs are not permitted
+  DLQ p1@53: heart_rate: Input should be a valid integer, unable to parse string as an integer
+  DLQ p1@54: reading_id: Field required
+  DLQ p1@61: heart_rate: Field required
+  DLQ p1@69: recorded_at: Value error, recorded_at 2026-09-11T17:56:55.729217+00:00 is in the future
+  DLQ p1@70: recorded_at: Field required
+  DLQ p1@79: heart_rate: Input should be greater than or equal to 20
+  DLQ p1@83: reading_id: String should have at least 1 character
+  DLQ p1@89: temperature_c: Input should be greater than or equal to 30
+  DLQ p1@93: recorded_at: Value error, recorded_at 2026-09-11T17:56:55.731866+00:00 is in the future
+  DLQ p1@116: heart_rate: Input should be less than or equal to 250
+  DLQ p1@120: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p1@125: spo2: Field required
+  DLQ p1@147: diagnosis: Extra inputs are not permitted
+  DLQ p1@158: consciousness: Input should be 'A', 'V', 'P' or 'U'
+  DLQ p1@162: temperature_c: Input should be less than or equal to 45
+  DLQ p1@166: reading_id: String should have at least 1 character
+  DLQ p1@183: heart_rate: Input should be less than or equal to 250
+  DLQ p1@186: temperature_c: Input should be less than or equal to 45
+  DLQ p1@246: diagnosis: Extra inputs are not permitted
+  DLQ p1@257: reading_id: String should have at least 1 character
+  DLQ p1@297: temperature_c: Input should be less than or equal to 45
+  DLQ p1@308: reading_id: Field required
+  parent_run_id: 01a08751-04eb-733e-8c97-c3a0ee28aca5
+  ingest: {'consumed': 1000, 'valid': 894, 'rejected': 106}
+  silver: {'source_rows': 894, 'num_target_rows_updated': 0, 'num_target_rows_inserted': 894}
+  gold: {'num_target_rows_inserted': 126, 'num_target_rows_updated': 0, 'gold_rows': 126, 'silver_rows': 894}
+  rag_index: 22

@@ -1,0 +1,17 @@
+# Airflow DAG 'capstone_pipeline' - task states for both runs
+# (see docs/images/ for the Graph-view screenshots)
+# ================================================================
+
+## normal_run_1
+capstone_pipeline | 2026-09-09T15:56:44+00:00 | rag_index    | success | 2026-09-09T15:58:16.720759+00:00 | 2026-09-09T15:58:35.805661+00:00
+capstone_pipeline | 2026-09-09T15:56:44+00:00 | ingest       | success | 2026-09-09T15:56:46.941781+00:00 | 2026-09-09T15:57:17.712521+00:00
+capstone_pipeline | 2026-09-09T15:56:44+00:00 | build_silver | success | 2026-09-09T15:57:19.027243+00:00 | 2026-09-09T15:57:32.961576+00:00
+capstone_pipeline | 2026-09-09T15:56:44+00:00 | quality_gate | success | 2026-09-09T15:57:34.274673+00:00 | 2026-09-09T15:58:00.090871+00:00
+capstone_pipeline | 2026-09-09T15:56:44+00:00 | build_gold   | success | 2026-09-09T15:58:01.639427+00:00 | 2026-09-09T15:58:15.414747+00:00
+
+## poison_run_1  (--conf '{"poison": true}')
+capstone_pipeline | 2026-09-09T16:01:06+00:00 | ingest       | success         | 2026-09-09T16:01:07.376875+00:00 | 2026-09-09T16:01:36.309436+00:00
+capstone_pipeline | 2026-09-09T16:01:06+00:00 | build_silver | success         | 2026-09-09T16:01:37.905615+00:00 | 2026-09-09T16:01:50.462853+00:00
+capstone_pipeline | 2026-09-09T16:01:06+00:00 | quality_gate | failed          | 2026-09-09T16:01:51.475427+00:00 | 2026-09-09T16:02:04.428570+00:00
+capstone_pipeline | 2026-09-09T16:01:06+00:00 | build_gold   | upstream_failed | 2026-09-09T16:02:04.559168+00:00 | 2026-09-09T16:02:04.559168+00:00
+capstone_pipeline | 2026-09-09T16:01:06+00:00 | rag_index    | upstream_failed | 2026-09-09T16:02:05.324337+00:00 | 2026-09-09T16:02:05.324337+00:00

@@ -1,0 +1,22 @@
+# OpenLineage events - one full 'python -m src.pipeline' run
+# raw events: docs/evidence/lineage_events.jsonl
+# failure-path events: docs/evidence/lineage_failure.jsonl
+
+--- NORMAL RUN ---
+  2026-09-09T17:57:08  START     ingest         parent=01a08751 in=['vitals.raw'] out=['vitals', 'vitals.deadletter']
+  2026-09-09T17:57:25  COMPLETE  ingest         parent=01a08751 in=['vitals.raw'] out=['vitals', 'vitals.deadletter']
+  2026-09-09T17:57:25  START     build_silver   parent=01a08751 in=['vitals'] out=['vitals']
+  2026-09-09T17:57:25  COMPLETE  build_silver   parent=01a08751 in=['vitals'] out=['vitals']
+  2026-09-09T17:57:25  START     quality_gate   parent=01a08751 in=['vitals'] out=[]
+  2026-09-09T17:57:26  COMPLETE  quality_gate   parent=01a08751 in=['vitals'] out=[]
+  2026-09-09T17:57:26  START     build_gold     parent=01a08751 in=['vitals'] out=['news2_scores']
+  2026-09-09T17:57:26  COMPLETE  build_gold     parent=01a08751 in=['vitals'] out=['news2_scores']
+  2026-09-09T17:57:26  START     rag_index      parent=01a08751 in=['news2_scores'] out=['clinical_guidelines']
+  2026-09-09T17:57:30  COMPLETE  rag_index      parent=01a08751 in=['news2_scores'] out=['clinical_guidelines']
+
+--- FAILURE PATH ---
+  2026-09-09T17:57:58  START     build_silver   parent=0000dead in=['vitals'] out=['vitals']
+  2026-09-09T17:57:59  COMPLETE  build_silver   parent=0000dead in=['vitals'] out=['vitals']
+  2026-09-09T17:57:59  START     quality_gate   parent=0000dead in=['vitals'] out=[]
+  2026-09-09T17:57:59  FAIL      quality_gate   parent=0000dead in=['vitals'] out=[] :: QualityGateError: Silver quality gate failed: 1 expectation(s) not met
+

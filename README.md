@@ -162,9 +162,17 @@ python -m pytest -q            # 98 pass; RAG/Gold integration tests skip withou
 
 ## Expected output & evidence
 
-Captured output for every rubric deliverable is in
-[docs/RESULTS.md](docs/RESULTS.md). The executed notebooks in
-[`notebooks/`](notebooks/) hold the same runs with their output cells saved:
+This project ships its evidence: it is not meant to be re-run to be assessed.
+
+- [docs/RESULTS.md](docs/RESULTS.md) - captured output per rubric deliverable.
+- [docs/evidence/](docs/evidence/) - raw run logs: full pipeline run, failure
+  path, OpenLineage event streams, `pytest` output, Airflow task states and the
+  real task logs (including the `quality_gate` failure traceback), a
+  dead-letter sample, and the Gold NEWS2 table.
+- [docs/images/](docs/images/) - Airflow Graph-view screenshots of both runs.
+
+The executed notebooks in [`notebooks/`](notebooks/) hold the same runs with
+their output cells saved:
 
 | Notebook | Covers |
 |----------|--------|

@@ -1,0 +1,12 @@
+# pytest -q  |  2026-09-09T17:58:35Z
+# (RAG/Gold integration tests skip automatically if Qdrant/Gold are absent)
+# ============================================================
+..................s..................................................... [ 75%]
+.....................s..                                                 [100%]
+=========================== short test summary info ===========================
+SKIPPED [1] tests\test_dag.py:42: Airflow only installed in the Airflow image
+SKIPPED [1] tests\test_rag.py:119: no Gold table built
+
+94 passed, 2 skipped in 20.44s
+# (skips: DAG-parse test needs Airflow - runs only in the Airflow image;
+#  Gold-window RAG test needs a built Gold table)

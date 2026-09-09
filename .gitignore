@@ -34,10 +34,11 @@ models/
 /gx/uncommitted/
 
 # --- OpenLineage event logs (run artifacts) ---
-lineage_events.jsonl
-lineage*.jsonl
+/lineage_events.jsonl
 /lineage/*.jsonl
 !/lineage/.gitkeep
+# ...but the committed evidence copies under docs/evidence/ are kept
+!/docs/evidence/**
 
 # --- Airflow local ---
 airflow/logs/

@@ -1,0 +1,8 @@
+# Failure path - a poisoned Bronze row makes the quality gate raise,
+# so build_gold and rag_index never run.
+
+QualityGateError raised:
+Silver quality gate failed: 1 expectation(s) not met
+  - expect_column_values_to_be_between(heart_rate): 1 unexpected
+
+-> build_gold and rag_index are NOT executed (pipeline halted)

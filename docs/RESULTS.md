@@ -1,9 +1,11 @@
 # Results & Evidence
 
-Captured output from real runs, one section per rubric deliverable. The
-executed notebooks under [`../notebooks/`](../notebooks/) hold the same runs
-with their output cells saved; the Airflow evidence is under
-[`images/`](images/).
+Captured output from real runs, one section per rubric deliverable. Raw run
+logs are in [`evidence/`](evidence/) (pipeline run, failure path, OpenLineage
+events, pytest, Airflow task states + task logs, dead-letter sample, Gold
+sample). The executed notebooks under [`../notebooks/`](../notebooks/) hold the
+same runs with their output cells saved; Airflow Graph-view screenshots are
+under [`images/`](images/).
 
 Environment: Windows 11, Python 3.12, `deltalake` (delta-rs, no Spark/JVM),
 `fastembed` / ONNX Runtime for embeddings (PyTorch is blocked by Smart App
