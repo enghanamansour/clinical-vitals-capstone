@@ -46,9 +46,18 @@ class Settings:
     # RAG
     qdrant_url: str = os.getenv("QDRANT_URL", "http://localhost:6333")
     qdrant_collection: str = os.getenv("QDRANT_COLLECTION", "clinical_guidelines")
-    embedding_model: str = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
-    reranker_model: str = os.getenv("RERANKER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
+    embedding_model: str = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
+    reranker_model: str = os.getenv("RERANKER_MODEL", "Xenova/ms-marco-MiniLM-L-6-v2")
     corpus_dir: Path = _path("CORPUS_DIR", "./corpus")
+    fastembed_cache_path: Path = _path("FASTEMBED_CACHE_PATH", "./models")
+
+    rag_dense_top_k: int = int(os.getenv("RAG_DENSE_TOP_K", "20"))
+    rag_bm25_top_k: int = int(os.getenv("RAG_BM25_TOP_K", "20"))
+    rag_rrf_k: int = int(os.getenv("RAG_RRF_K", "60"))
+    rag_rerank_top_n: int = int(os.getenv("RAG_RERANK_TOP_N", "5"))
+    # cross-encoder logit floor; below this the top hit is treated as irrelevant
+    # and the pipeline refuses to answer.
+    rag_min_rerank_score: float = float(os.getenv("RAG_MIN_RERANK_SCORE", "-6.0"))
 
 
 settings = Settings()

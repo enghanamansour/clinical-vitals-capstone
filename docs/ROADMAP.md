@@ -37,10 +37,18 @@ Check off as we go.
       uniqueness / pattern / freshness each raise). Evidence: live Silver -> 14/14
       met; corrupted batch -> raises listing 3 failed expectations, so `build_gold`
       is skipped.
-- [ ] **Stage 5 — RAG**: `corpus/` docs + `src/rag/*`. Hybrid (dense + BM25) →
-      RRF → cross-encoder rerank → grounded answer with citations. Evidence:
-      notebook with a question, the retrieved chunks, RRF + rerank scores, and the
-      cited answer.
+- [x] **Stage 5 — RAG**: 7 guideline docs in `corpus/`; `src/rag/` -
+      `chunk.py` (heading-aware, word-window + overlap), `embed.py` (fastembed
+      ONNX `bge-small-en-v1.5` - torch is blocked by Smart App Control),
+      `index.py` (Qdrant collection), `search.py` (dense + BM25 fused with
+      Reciprocal Rank Fusion), `rerank.py` (fastembed cross-encoder
+      `ms-marco-MiniLM-L-6-v2`), `answer.py` (extractive, every sentence cited;
+      refuses below a rerank floor), `cli.py` (`build` / `ask` / `explain`).
+      `explain` turns a Gold NEWS2 row into the query, linking Stage 3 -> 5.
+      Tests: chunking, RRF math, hybrid retrieval hits the right doc, answer is
+      grounded + cited, off-topic question refused, Gold-window link.
+      Evidence: "sepsis screening" -> cross-encoder promotes `sepsis-screening`
+      from RRF rank ~5 to rank 1 (score +2.1); gift-shop question -> refused.
 - [ ] **Stage 6 — Lineage**: `src/lineage/emit.py`. Evidence: `lineage_events.jsonl`
       with START/COMPLETE per stage and a FAIL event from a forced failure.
 - [ ] **Stage 7 — Airflow DAG**: `dags/capstone_pipeline.py` + Airflow service in

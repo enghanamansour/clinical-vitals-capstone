@@ -71,8 +71,14 @@ See [docs/architecture.md](docs/architecture.md) for the detailed design.
 | Lakehouse      | `deltalake` (delta-rs) + `pyarrow` |
 | Quality gate   | `great-expectations` |
 | Lineage        | `openlineage-python` |
-| RAG            | `sentence-transformers`, `rank-bm25`, `qdrant-client` |
+| RAG            | `fastembed` (ONNX), `rank-bm25`, `qdrant-client` |
 | Orchestration  | `apache-airflow` (via Docker) |
+
+> Embeddings and the cross-encoder run through **fastembed / ONNX Runtime**
+> rather than `sentence-transformers` + PyTorch: on this Windows machine Smart
+> App Control blocks PyTorch's unsigned native DLLs, while ONNX Runtime's are
+> signed and load normally. Same models, no functional difference for the
+> pipeline.
 
 ---
 
@@ -123,6 +129,11 @@ python -c "from src.lakehouse.gold import build_gold; print(build_gold())"
 python -m src.quality.expectations
 # PASS -> prints "14/14 expectations met"; FAIL -> exits 1 (this is what the
 # Airflow DAG uses to halt the pipeline before build_gold)
+
+# --- Stage 5 - RAG over the clinical-guideline corpus ---------------------
+python -m src.rag.cli build                     # chunk -> embed -> Qdrant index
+python -m src.rag.cli ask "When should sepsis screening be started?"
+python -m src.rag.cli explain --patient P100007 # Gold NEWS2 row -> cited answer
 
 # (more stages added as they are implemented)
 ```
@@ -179,6 +190,24 @@ Silver quality gate failed: 3 expectation(s) not met
   - expect_column_values_to_be_between(spo2): 1 unexpected
 # -> QualityGateError raised -> build_gold and the RAG refresh never run
 ```
+
+**Stage 5** - `ask "When should sepsis screening be started?"`:
+
+```
+A NEWS2 aggregate of 5 or more, or a single parameter scoring 3, in a patient
+with likely infection should trigger a sepsis screen. [1] Screen any patient
+with a suspected or confirmed infection who also shows signs of acute illness. [1]
+
+Citations:
+  [1] Recognising sepsis and the Sepsis Six - When to screen for sepsis  (rerank 0.67)
+
+Retrieval (fused hybrid):
+  sepsis-screening::0   rrf=0.030   dense_rank=1   bm25_rank=13
+# cross-encoder lifts sepsis-screening from RRF ~rank 5 to the top of the answer.
+```
+
+An off-topic question ("gift shop hours") is refused - every chunk scores below
+the rerank floor.
 
 Later stages capture their output under `notebooks/`.
 
