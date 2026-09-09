@@ -172,7 +172,10 @@ Captured output for every rubric deliverable is in
 | `03_quality_gate_and_lineage.ipynb` | Great Expectations gate (pass + fail), OpenLineage START/COMPLETE/FAIL |
 | `04_rag_pipeline.ipynb` | chunk -> embed -> Qdrant, hybrid + RRF, cross-encoder rerank, citations, refusal |
 
-Airflow screenshots go in [docs/images/](docs/images/).
+Airflow DAG runs (normal, and a poisoned run where the quality gate halts the
+pipeline) are in [docs/images/](docs/images/).
+
+![Airflow DAG halted at the quality gate](docs/images/airflow_dag_halted.png)
 
 ---
 

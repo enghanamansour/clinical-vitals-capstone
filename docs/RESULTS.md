@@ -107,6 +107,8 @@ build_gold    success   (~14s)
 rag_index     success   (~19s)
 ```
 
+![Airflow DAG - normal run, all tasks success](images/airflow_dag_success.png)
+
 **Failure run** (`--conf '{"poison": true}'` injects an out-of-range Bronze row):
 
 ```
@@ -116,6 +118,8 @@ quality_gate  failed            <- gate raises QualityGateError
 build_gold    upstream_failed   <- never ran
 rag_index     upstream_failed   <- never ran
 ```
+
+![Airflow DAG - poison run, quality_gate failed and downstream skipped](images/airflow_dag_halted.png)
 
 A failed quality gate halts the pipeline before every downstream stage.
 
