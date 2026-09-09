@@ -1,0 +1,44 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Virtual envs ---
+.venv/
+venv/
+env/
+
+# --- Secrets / local config ---
+.env
+*.key
+*.pem
+secrets/
+
+# --- Generated data & pipeline artifacts ---
+data/
+!data/.gitkeep
+lakehouse/
+!lakehouse/.gitkeep
+*.parquet
+_delta_log/
+
+# --- Vector store / model caches ---
+qdrant_storage/
+.cache/
+models/
+
+# --- Great Expectations local artifacts ---
+gx/uncommitted/
+
+# --- Airflow local ---
+airflow/logs/
+airflow.db
+airflow-webserver.pid
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

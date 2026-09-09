@@ -1,0 +1,29 @@
+# Core pipeline (runs natively on Windows, no Docker needed)
+pydantic==2.9.2
+python-dotenv==1.0.1
+
+# Streaming / ingestion (needs a Kafka broker from docker-compose)
+kafka-python==2.0.2
+
+# Delta Lakehouse (delta-rs - no JVM/Spark required)
+deltalake==0.21.0
+pyarrow==17.0.0
+pandas==2.2.3
+
+# Data quality gate
+great-expectations==0.18.22
+
+# Lineage
+openlineage-python==1.24.2
+
+# RAG
+sentence-transformers==3.2.1
+rank-bm25==0.2.2
+qdrant-client==1.12.1
+
+# Notebooks (for captured-output evidence)
+jupyter==1.1.1
+
+# Note: apache-airflow is NOT installed here - it runs from the official
+# Docker image via docker-compose (see docker/). Installing Airflow into a
+# Windows venv is unsupported.
