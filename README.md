@@ -210,7 +210,7 @@ This project was completed under the **Modern Data Engineering for AI Systems**
 program at **SDAIA Academy** (delivered via Learning Space) — a 5-day capstone.
 
 - Trainer: Mohammed Albeladi
-- Cohort / session dates: _<fill in your cohort dates>_
+- Cohort / session dates: September 2026
 
 SDAIA Academy on GitHub: https://github.com/SDAIAAcademy
 
