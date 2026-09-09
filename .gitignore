@@ -36,7 +36,8 @@ models/
 # --- OpenLineage event logs (run artifacts) ---
 lineage_events.jsonl
 lineage*.jsonl
-/lineage/events.jsonl
+/lineage/*.jsonl
+!/lineage/.gitkeep
 
 # --- Airflow local ---
 airflow/logs/

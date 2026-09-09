@@ -68,5 +68,17 @@ Check off as we go.
       DagBag parse + downstream edges when Airflow is importable). Evidence: a
       normal run - all 5 tasks success; a `poison=true` run - `quality_gate`
       failed, `build_gold` + `rag_index` `upstream_failed` (never ran).
-- [ ] **Stage 8 — Evidence pass & docs**: execute all notebooks with output,
-      finalise README run/output sections, screenshots, failure-path proofs.
+- [x] **Stage 8 — Evidence pass & docs**: 4 executed notebooks under
+      `notebooks/` (contract+ingestion, lakehouse, quality+lineage, RAG), all
+      code cells carrying saved output; `docs/RESULTS.md` consolidating captured
+      output per rubric deliverable; README rewritten with an end-to-end run
+      guide, repository layout, and evidence pointers; `docs/images/` with a
+      note on which Airflow screenshots to attach.
+
+---
+
+All five rubric deliverables are implemented against the real libraries
+(kafka-python, deltalake, great-expectations, openlineage-python, apache-airflow,
+Qdrant) with executed evidence and proven failure paths. Remaining owner tasks:
+add the Airflow screenshots to `docs/images/`, fill the cohort dates in the
+README, and push to GitHub.

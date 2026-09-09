@@ -103,132 +103,100 @@ copy .env.example .env   # then edit values if needed
 
 ## How to run
 
-> Filled in stage by stage as the pipeline is built. See [docs/ROADMAP.md](docs/ROADMAP.md).
+### 1. Infrastructure
 
 ```powershell
-# --- Stage 1 - synthetic data + data contract -------------------------------
-python -m src.generator.synth_vitals --rows 300 --bad-rate 0.15 --seed 7 `
-    --out data/raw/vitals_mixed.jsonl
-python -m pytest -q                       # contract + routing + schema tests
+docker compose -f docker/docker-compose.yml up -d        # Kafka + Kafka UI + Qdrant
+```
 
-# --- Stage 2 - Kafka ingestion --------------------------------------------
-docker compose -f docker/docker-compose.yml up -d      # Kafka + Kafka UI + Qdrant
-python -m src.ingestion.admin                          # create topics
-python -m src.ingestion.producer --input data/raw/vitals_mixed.jsonl
-python -m src.ingestion.consumer --max-messages 300 --idle-timeout 10
-# valid rows -> Delta Bronze at ./lakehouse/bronze/vitals
-# malformed  -> Kafka topic vitals.deadletter (with reasons), browse at :8080
+### 2. Generate a batch and run the whole pipeline
 
-# --- Stage 3 - Delta Lakehouse: Silver (MERGE) + Gold (NEWS2) --------------
-python -c "from src.lakehouse.silver import build_silver; print(build_silver())"
-python -c "from src.lakehouse.gold import build_gold; print(build_gold())"
-# Silver: one current row per reading_id (upsert). Gold: NEWS2 early-warning
-# aggregate per patient per hour at ./lakehouse/gold/news2_scores
+```powershell
+python -m src.generator.synth_vitals --rows 1000 --bad-rate 0.1 --seed 21 `
+    --out data/raw/vitals_run.jsonl
 
-# --- Stage 4 - Great Expectations quality gate on Silver ------------------
-python -m src.quality.expectations
-# PASS -> prints "14/14 expectations met"; FAIL -> exits 1 (this is what the
-# Airflow DAG uses to halt the pipeline before build_gold)
-
-# --- Stage 5 - RAG over the clinical-guideline corpus ---------------------
-python -m src.rag.cli build                     # chunk -> embed -> Qdrant index
-python -m src.rag.cli ask "When should sepsis screening be started?"
-python -m src.rag.cli explain --patient P100007 # Gold NEWS2 row -> cited answer
-
-# --- Stage 6 - run the whole pipeline with OpenLineage events -------------
 python -m src.pipeline --input data/raw/vitals_run.jsonl
-# writes START/COMPLETE (or FAIL) per stage to ./lineage_events.jsonl,
-# all sharing one parent run id
 ```
 
-## Expected output
+`src/pipeline.py` runs every stage in order -
+`ingest -> build_silver -> quality_gate -> build_gold -> rag_index` - wrapping
+each in an OpenLineage span (START / COMPLETE / FAIL to
+`./lineage_events.jsonl`). A failing quality gate stops the run before Gold.
 
-**Stage 1** - the generator reports the valid / malformed split, and `pytest`
-shows the contract rejecting every injected fault:
-
-```
-wrote 300 records -> data\raw\vitals_mixed.jsonl
-total=300  valid=260  malformed=40
-  malformed[bad_enum] = 5
-  malformed[missing_required] = 4
-  ...
-13 passed
-```
-
-Example rejection reasons produced by the contract:
-
-| Injected fault      | Reason recorded |
-|---------------------|-----------------|
-| `hr_out_of_range`   | `heart_rate: Input should be greater than or equal to 20` |
-| `bad_enum`          | `consciousness: Input should be 'A', 'V', 'P' or 'U'` |
-| `unknown_field`     | `diagnosis: Extra inputs are not permitted` |
-| `future_timestamp`  | `recorded_at: Value error, ... is in the future` |
-| `bad_patient_id`    | `patient_id: String should match pattern '^P\d{6}$'` |
-
-**Stage 3** - a 1200-record run (`seed 11`, 12% bad-rate):
+Expected tail:
 
 ```
-consumed=1200  ->  bronze=1074   deadletter=126
-silver merge   ->  source_rows=1074  inserted=1074  updated=0   (total 1074)
-gold           ->  139 rows   (7.7x reduction from Silver)
-                   worst_risk_band: {'low': 135, 'high': 4}
+pipeline run <uuid>
+  ingest:    {'consumed': 1000, 'valid': 894, 'rejected': 106}
+  silver:    {'source_rows': 894, 'num_target_rows_inserted': 894, ...}
+  gold:      {'gold_rows': 139, 'silver_rows': 894, ...}
+  rag_index: 22
 ```
 
-A follow-up correction batch re-sending 5 `reading_id`s with changed vitals:
+### 3. Same pipeline under Airflow
 
-```
-merge metrics: num_target_rows_updated=5  num_target_rows_inserted=0
-silver rows    before=1074  after=1074      (upsert in place, not appended)
-```
+```powershell
+docker compose -f docker/docker-compose.airflow.yml up -d --build   # UI :8081 admin/admin
+docker compose -f docker/docker-compose.airflow.yml exec airflow-scheduler `
+  airflow dags trigger capstone_pipeline
 
-**Stage 4** - the gate on the live Silver table, then on a deliberately
-corrupted batch:
-
-```
-quality gate PASSED - 14/14 expectations met
-
-Silver quality gate failed: 3 expectation(s) not met
-  - expect_column_values_to_be_unique(reading_id): 2 unexpected
-  - expect_column_values_to_be_between(heart_rate): 1 unexpected
-  - expect_column_values_to_be_between(spo2): 1 unexpected
-# -> QualityGateError raised -> build_gold and the RAG refresh never run
+# failure path: poison Bronze so the quality gate fails and downstream is skipped
+docker compose -f docker/docker-compose.airflow.yml exec airflow-scheduler `
+  airflow dags trigger capstone_pipeline --conf '{\"poison\": true}'
 ```
 
-**Stage 5** - `ask "When should sepsis screening be started?"`:
+### 4. Query the RAG pipeline
 
-```
-A NEWS2 aggregate of 5 or more, or a single parameter scoring 3, in a patient
-with likely infection should trigger a sepsis screen. [1] Screen any patient
-with a suspected or confirmed infection who also shows signs of acute illness. [1]
-
-Citations:
-  [1] Recognising sepsis and the Sepsis Six - When to screen for sepsis  (rerank 0.67)
-
-Retrieval (fused hybrid):
-  sepsis-screening::0   rrf=0.030   dense_rank=1   bm25_rank=13
-# cross-encoder lifts sepsis-screening from RRF ~rank 5 to the top of the answer.
+```powershell
+python -m src.rag.cli build                              # chunk -> embed -> Qdrant
+python -m src.rag.cli ask "When should sepsis screening be started?"
+python -m src.rag.cli explain --patient P100007          # a Gold NEWS2 row -> cited answer
 ```
 
-An off-topic question ("gift shop hours") is refused - every chunk scores below
-the rerank floor.
+### 5. Tests
 
-**Stage 6** - `python -m src.pipeline`:
-
-```
-pipeline run 01a0857f-294a-7157-83d2-1bb43550aa67
-lineage_events.jsonl:
-  START/COMPLETE  ingest        (vitals.raw -> bronze, vitals.deadletter)
-  START/COMPLETE  build_silver  (bronze -> silver)
-  START/COMPLETE  quality_gate  (silver)
-  START/COMPLETE  build_gold    (silver -> news2_scores)
-  START/COMPLETE  rag_index     (news2_scores -> clinical_guidelines)
+```powershell
+python -m pytest -q            # 98 pass; RAG/Gold integration tests skip without Qdrant
 ```
 
-With a poisoned Silver row the `quality_gate` stage emits `START` then `FAIL`
-(carrying the `ErrorMessageRunFacet`) and `build_gold` / `rag_index` emit
-nothing - the failure halts the run.
+## Expected output & evidence
 
-Later stages capture their output under `notebooks/`.
+Captured output for every rubric deliverable is in
+[docs/RESULTS.md](docs/RESULTS.md). The executed notebooks in
+[`notebooks/`](notebooks/) hold the same runs with their output cells saved:
+
+| Notebook | Covers |
+|----------|--------|
+| `01_ingestion_and_contract.ipynb` | Pydantic contract, Kafka produce/consume, Bronze, dead-letter |
+| `02_lakehouse_silver_gold.ipynb`  | Silver MERGE upsert, correction demo, Gold NEWS2 aggregate, schema enforcement |
+| `03_quality_gate_and_lineage.ipynb` | Great Expectations gate (pass + fail), OpenLineage START/COMPLETE/FAIL |
+| `04_rag_pipeline.ipynb` | chunk -> embed -> Qdrant, hybrid + RRF, cross-encoder rerank, citations, refusal |
+
+Airflow screenshots go in [docs/images/](docs/images/).
+
+---
+
+## Repository layout
+
+```
+clinical-vitals-capstone/
+├── config/settings.py          # typed .env configuration
+├── corpus/                     # 7 clinical-guideline docs for the RAG stage
+├── dags/capstone_pipeline.py   # Airflow DAG (deliverable 4)
+├── docker/                     # docker-compose for Kafka/Qdrant + Airflow image
+├── docs/                       # architecture, roadmap, RESULTS.md, screenshots
+├── notebooks/                  # executed evidence notebooks
+├── src/
+│   ├── contracts/vitals.py     # Pydantic data contract (deliverable 1)
+│   ├── generator/synth_vitals.py
+│   ├── ingestion/              # admin, producer, consumer, serde (deliverable 1)
+│   ├── lakehouse/              # bronze, silver (MERGE), gold (NEWS2), news2 (deliverable 2)
+│   ├── quality/expectations.py # Great Expectations gate (deliverable 5)
+│   ├── lineage/emit.py         # OpenLineage spans (deliverable 5)
+│   ├── rag/                    # chunk, embed, index, search, rerank, answer, cli (deliverable 3)
+│   └── pipeline.py             # stages wired with lineage; the Airflow tasks call these
+└── tests/                      # 98 tests
+```
 
 ---
 
