@@ -84,9 +84,10 @@ See [docs/architecture.md](docs/architecture.md) for the detailed design.
 
 ## Prerequisites
 
-- Python 3.11+
-- Docker Desktop (for the Kafka broker and Airflow only)
-- ~2 GB free disk (embedding + cross-encoder models are downloaded on first run)
+- Python 3.12 (3.13+ has no wheels yet for parts of this stack; 3.11 also works)
+- Docker Desktop — for Kafka + Qdrant, and for Airflow
+- ~1 GB free disk (the ONNX embedding + cross-encoder models download on first run
+  into `./models/`)
 
 ## Setup
 

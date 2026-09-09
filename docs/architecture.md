@@ -64,8 +64,12 @@ Corpus: `corpus/` holds open clinical-guideline text (e.g. NEWS2 escalation
 guidance, sepsis screening, hypoxaemia management) as Markdown, each with a
 front-matter `source` citation.
 
-1. **Chunk** — `src/rag/chunk.py`, ~500-token windows with overlap, headings kept.
-2. **Embed** — `src/rag/embed.py`, `all-MiniLM-L6-v2`.
+1. **Chunk** — `src/rag/chunk.py`, ~130-word windows with 30-word overlap,
+   headings kept.
+2. **Embed** — `src/rag/embed.py`, `fastembed` (ONNX Runtime) with
+   `BAAI/bge-small-en-v1.5` (384-dim). fastembed is used instead of
+   `sentence-transformers` + PyTorch because Windows Smart App Control blocks
+   PyTorch's unsigned native DLLs; ONNX Runtime's are signed.
 3. **Index** — `src/rag/index.py`, vectors + raw text into **Qdrant**; BM25 index
    built in-process over the same chunks.
 4. **Hybrid search** — `src/rag/search.py`: dense top-k from Qdrant + BM25 top-k,
