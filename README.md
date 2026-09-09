@@ -113,6 +113,12 @@ python -m src.ingestion.consumer --max-messages 300 --idle-timeout 10
 # valid rows -> Delta Bronze at ./lakehouse/bronze/vitals
 # malformed  -> Kafka topic vitals.deadletter (with reasons), browse at :8080
 
+# --- Stage 3 - Delta Lakehouse: Silver (MERGE) + Gold (NEWS2) --------------
+python -c "from src.lakehouse.silver import build_silver; print(build_silver())"
+python -c "from src.lakehouse.gold import build_gold; print(build_gold())"
+# Silver: one current row per reading_id (upsert). Gold: NEWS2 early-warning
+# aggregate per patient per hour at ./lakehouse/gold/news2_scores
+
 # (more stages added as they are implemented)
 ```
 
@@ -139,6 +145,22 @@ Example rejection reasons produced by the contract:
 | `unknown_field`     | `diagnosis: Extra inputs are not permitted` |
 | `future_timestamp`  | `recorded_at: Value error, ... is in the future` |
 | `bad_patient_id`    | `patient_id: String should match pattern '^P\d{6}$'` |
+
+**Stage 3** - a 1200-record run (`seed 11`, 12% bad-rate):
+
+```
+consumed=1200  ->  bronze=1074   deadletter=126
+silver merge   ->  source_rows=1074  inserted=1074  updated=0   (total 1074)
+gold           ->  139 rows   (7.7x reduction from Silver)
+                   worst_risk_band: {'low': 135, 'high': 4}
+```
+
+A follow-up correction batch re-sending 5 `reading_id`s with changed vitals:
+
+```
+merge metrics: num_target_rows_updated=5  num_target_rows_inserted=0
+silver rows    before=1074  after=1074      (upsert in place, not appended)
+```
 
 Later stages capture their output under `notebooks/`.
 

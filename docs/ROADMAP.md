@@ -19,10 +19,16 @@ Check off as we go.
       (wrong type / extra column refused by delta-rs). Evidence: run log showing
       malformed records in `vitals.deadletter` with reasons + source offset,
       Bronze row count == valid count only.
-- [ ] **Stage 3 — Delta Lakehouse**: `src/lakehouse/{bronze,silver,gold}.py`.
-      Silver `DeltaTable.merge` on `reading_id`; Gold NEWS2 aggregate. Evidence:
-      re-sent `reading_id` updates in place (not duplicated); a wrong-schema write
-      is refused; Gold row count << Silver.
+- [x] **Stage 3 — Delta Lakehouse**: `src/lakehouse/news2.py` (RCP NEWS2 scoring,
+      pure), `src/lakehouse/silver.py` (incremental watermark + `DeltaTable.merge`
+      on `reading_id`, matched->update / not-matched->insert),
+      `src/lakehouse/gold.py` (NEWS2 aggregate per patient-hour, upsert on
+      `(patient_id, window_start)`). Tests: `test_news2.py` (band boundaries + RCP
+      examples), `test_silver_merge.py` (correction updates in place),
+      `test_gold_aggregate.py` (Gold is a reduction, deterioration reflected).
+      Evidence: 1200 in -> 1074 Silver -> **139 Gold (7.7x reduction)**; a 5-row
+      correction batch -> `num_target_rows_updated=5, inserted=0`, Silver row
+      count unchanged; delta-rs refuses wrong-type / extra-column writes.
 - [ ] **Stage 4 — Quality gate**: `src/quality/expectations.py` (Great
       Expectations checkpoint on Silver). Evidence: a bad batch fails the
       checkpoint and Gold does not build.
