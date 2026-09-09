@@ -5,10 +5,11 @@ Check off as we go.
 
 - [x] **Stage 0 — Scaffold**: repo structure, README, .gitignore, requirements,
       .env.example, architecture doc. Install Docker Desktop.
-- [ ] **Stage 1 — Data contract + generator**: `src/contracts/vitals.py` (Pydantic
-      v2), `src/generator/synth_vitals.py` (valid + malformed rows). Runs on
-      Windows, no Docker. Evidence: notebook showing valid rows pass and malformed
-      rows raise `ValidationError` with reasons.
+- [x] **Stage 1 — Data contract + generator**: `src/contracts/vitals.py` (Pydantic
+      v2, `extra="forbid"`, range + pattern + not-in-future checks),
+      `src/generator/synth_vitals.py` (plausible cohort + 11 injected fault types),
+      `tests/test_contract.py` (13 tests). Runs on Windows, no Docker. Evidence:
+      `pytest` green; every corruption type rejected with a named reason.
 - [ ] **Stage 2 — Kafka ingestion**: `docker/docker-compose.yml` (Kafka + Kafka UI
       + Qdrant), `src/ingestion/producer.py`, `src/ingestion/consumer.py`,
       dead-letter routing. Evidence: log of malformed records landing in

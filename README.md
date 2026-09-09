@@ -100,15 +100,39 @@ copy .env.example .env   # then edit values if needed
 > Filled in stage by stage as the pipeline is built. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ```powershell
-# Stage 1 - generate synthetic vitals and validate against the data contract
-python -m src.generator.synth_vitals --rows 5000 --out data/raw/vitals.jsonl
+# Stage 1 - generate synthetic vitals, then validate against the data contract
+python -m src.generator.synth_vitals --rows 300 --bad-rate 0.15 --seed 7 `
+    --out data/raw/vitals_mixed.jsonl
+python -m pytest -q            # 13 contract tests
 
 # (more stages added as they are implemented)
 ```
 
 ## Expected output
 
-> Filled in stage by stage, with captured output committed under `notebooks/`.
+**Stage 1** - the generator reports the valid / malformed split, and `pytest`
+shows the contract rejecting every injected fault:
+
+```
+wrote 300 records -> data\raw\vitals_mixed.jsonl
+total=300  valid=260  malformed=40
+  malformed[bad_enum] = 5
+  malformed[missing_required] = 4
+  ...
+13 passed
+```
+
+Example rejection reasons produced by the contract:
+
+| Injected fault      | Reason recorded |
+|---------------------|-----------------|
+| `hr_out_of_range`   | `heart_rate: Input should be greater than or equal to 20` |
+| `bad_enum`          | `consciousness: Input should be 'A', 'V', 'P' or 'U'` |
+| `unknown_field`     | `diagnosis: Extra inputs are not permitted` |
+| `future_timestamp`  | `recorded_at: Value error, ... is in the future` |
+| `bad_patient_id`    | `patient_id: String should match pattern '^P\d{6}$'` |
+
+Later stages capture their output under `notebooks/`.
 
 ---
 
