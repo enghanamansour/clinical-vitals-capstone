@@ -10,10 +10,15 @@ Check off as we go.
       `src/generator/synth_vitals.py` (plausible cohort + 11 injected fault types),
       `tests/test_contract.py` (13 tests). Runs on Windows, no Docker. Evidence:
       `pytest` green; every corruption type rejected with a named reason.
-- [ ] **Stage 2 — Kafka ingestion**: `docker/docker-compose.yml` (Kafka + Kafka UI
-      + Qdrant), `src/ingestion/producer.py`, `src/ingestion/consumer.py`,
-      dead-letter routing. Evidence: log of malformed records landing in
-      `vitals.deadletter` with reasons; Bronze contains only valid rows.
+- [x] **Stage 2 — Kafka ingestion**: `docker/docker-compose.yml` (Kafka KRaft +
+      Kafka UI + Qdrant), `src/ingestion/admin.py` (explicit topic creation),
+      `src/ingestion/producer.py` (JSONL -> `vitals.raw`, keyed by patient),
+      `src/ingestion/consumer.py` (bounded batch: contract check -> Bronze /
+      dead-letter), `src/lakehouse/bronze.py` (typed Delta schema + enforced
+      append). Tests: `test_ingestion.py` (routing), `test_bronze_schema.py`
+      (wrong type / extra column refused by delta-rs). Evidence: run log showing
+      malformed records in `vitals.deadletter` with reasons + source offset,
+      Bronze row count == valid count only.
 - [ ] **Stage 3 — Delta Lakehouse**: `src/lakehouse/{bronze,silver,gold}.py`.
       Silver `DeltaTable.merge` on `reading_id`; Gold NEWS2 aggregate. Evidence:
       re-sent `reading_id` updates in place (not duplicated); a wrong-schema write

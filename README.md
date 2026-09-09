@@ -100,10 +100,18 @@ copy .env.example .env   # then edit values if needed
 > Filled in stage by stage as the pipeline is built. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ```powershell
-# Stage 1 - generate synthetic vitals, then validate against the data contract
+# --- Stage 1 - synthetic data + data contract -------------------------------
 python -m src.generator.synth_vitals --rows 300 --bad-rate 0.15 --seed 7 `
     --out data/raw/vitals_mixed.jsonl
-python -m pytest -q            # 13 contract tests
+python -m pytest -q                       # contract + routing + schema tests
+
+# --- Stage 2 - Kafka ingestion --------------------------------------------
+docker compose -f docker/docker-compose.yml up -d      # Kafka + Kafka UI + Qdrant
+python -m src.ingestion.admin                          # create topics
+python -m src.ingestion.producer --input data/raw/vitals_mixed.jsonl
+python -m src.ingestion.consumer --max-messages 300 --idle-timeout 10
+# valid rows -> Delta Bronze at ./lakehouse/bronze/vitals
+# malformed  -> Kafka topic vitals.deadletter (with reasons), browse at :8080
 
 # (more stages added as they are implemented)
 ```

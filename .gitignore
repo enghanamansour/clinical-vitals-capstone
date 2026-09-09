@@ -17,12 +17,11 @@ env/
 secrets/
 
 # --- Generated data & pipeline artifacts ---
-data/
-!data/.gitkeep
-lakehouse/
-!lakehouse/.gitkeep
+# Anchored to the repo root so src/lakehouse/ (source code) is NOT ignored.
+/data/
+!/data/.gitkeep
+/lakehouse/
 *.parquet
-_delta_log/
 
 # --- Vector store / model caches ---
 qdrant_storage/
