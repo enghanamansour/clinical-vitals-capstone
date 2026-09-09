@@ -1,0 +1,15 @@
+# Runtime libraries the pipeline code needs inside the Airflow image.
+# (Airflow itself comes from the base image; jupyter/pytest are not needed here.)
+kafka-python==3.0.11
+deltalake==0.21.0
+pyarrow==17.0.0
+pandas==2.2.3
+great-expectations==0.18.22
+openlineage-python==1.24.2
+fastembed==0.4.2
+onnxruntime==1.19.2
+numpy==1.26.4
+rank-bm25==0.2.2
+qdrant-client==1.12.1
+pydantic==2.9.2
+python-dotenv==1.0.1

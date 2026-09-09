@@ -58,8 +58,15 @@ Check off as we go.
       + re-raise, shared parent). Evidence: a full run writes 10 events (5 stages
       x START/COMPLETE); a poisoned Silver -> `quality_gate` emits START then FAIL
       and `build_gold` / `rag_index` emit nothing.
-- [ ] **Stage 7 — Airflow DAG**: `dags/capstone_pipeline.py` + Airflow service in
-      docker-compose. Evidence: green DAG run screenshot; a run where the quality
-      gate fails and downstream tasks are skipped.
+- [x] **Stage 7 — Airflow DAG**: `dags/capstone_pipeline.py` (TaskFlow) -
+      `ingest >> build_silver >> quality_gate >> build_gold >> rag_index`, each
+      task calling the matching `src.pipeline.stage_*`; all tasks derive one
+      OpenLineage parent run from the Airflow `run_id`. `docker/airflow/Dockerfile`
+      + `docker/docker-compose.airflow.yml` (LocalExecutor, Postgres, attaches to
+      the base stack network). `poison` param injects a bad Bronze row to force
+      the gate to fail. Tests: `test_dag.py` (static chain check always; full
+      DagBag parse + downstream edges when Airflow is importable). Evidence: a
+      normal run - all 5 tasks success; a `poison=true` run - `quality_gate`
+      failed, `build_gold` + `rag_index` `upstream_failed` (never ran).
 - [ ] **Stage 8 — Evidence pass & docs**: execute all notebooks with output,
       finalise README run/output sections, screenshots, failure-path proofs.
