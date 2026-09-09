@@ -29,7 +29,9 @@ qdrant_storage/
 models/
 
 # --- Great Expectations local artifacts ---
-gx/uncommitted/
+# keep the expectation suite (documents the checks); ignore per-run results
+/gx/validations/
+/gx/uncommitted/
 
 # --- Airflow local ---
 airflow/logs/

@@ -29,9 +29,14 @@ Check off as we go.
       Evidence: 1200 in -> 1074 Silver -> **139 Gold (7.7x reduction)**; a 5-row
       correction batch -> `num_target_rows_updated=5, inserted=0`, Silver row
       count unchanged; delta-rs refuses wrong-type / extra-column writes.
-- [ ] **Stage 4 — Quality gate**: `src/quality/expectations.py` (Great
-      Expectations checkpoint on Silver). Evidence: a bad batch fails the
-      checkpoint and Gold does not build.
+- [x] **Stage 4 — Quality gate**: `src/quality/expectations.py` - 14-expectation
+      Silver suite (null/unique business key, patient-id regex, per-vital ranges,
+      ACVPU set, freshness via `age_minutes`). `run_silver_quality_gate` raises
+      `QualityGateError` on any failure; each run's result is persisted under
+      `gx/validations/`. Tests: `test_quality_gate.py` (clean passes; range /
+      uniqueness / pattern / freshness each raise). Evidence: live Silver -> 14/14
+      met; corrupted batch -> raises listing 3 failed expectations, so `build_gold`
+      is skipped.
 - [ ] **Stage 5 — RAG**: `corpus/` docs + `src/rag/*`. Hybrid (dense + BM25) →
       RRF → cross-encoder rerank → grounded answer with citations. Evidence:
       notebook with a question, the retrieved chunks, RRF + rerank scores, and the

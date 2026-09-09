@@ -119,6 +119,11 @@ python -c "from src.lakehouse.gold import build_gold; print(build_gold())"
 # Silver: one current row per reading_id (upsert). Gold: NEWS2 early-warning
 # aggregate per patient per hour at ./lakehouse/gold/news2_scores
 
+# --- Stage 4 - Great Expectations quality gate on Silver ------------------
+python -m src.quality.expectations
+# PASS -> prints "14/14 expectations met"; FAIL -> exits 1 (this is what the
+# Airflow DAG uses to halt the pipeline before build_gold)
+
 # (more stages added as they are implemented)
 ```
 
@@ -160,6 +165,19 @@ A follow-up correction batch re-sending 5 `reading_id`s with changed vitals:
 ```
 merge metrics: num_target_rows_updated=5  num_target_rows_inserted=0
 silver rows    before=1074  after=1074      (upsert in place, not appended)
+```
+
+**Stage 4** - the gate on the live Silver table, then on a deliberately
+corrupted batch:
+
+```
+quality gate PASSED - 14/14 expectations met
+
+Silver quality gate failed: 3 expectation(s) not met
+  - expect_column_values_to_be_unique(reading_id): 2 unexpected
+  - expect_column_values_to_be_between(heart_rate): 1 unexpected
+  - expect_column_values_to_be_between(spo2): 1 unexpected
+# -> QualityGateError raised -> build_gold and the RAG refresh never run
 ```
 
 Later stages capture their output under `notebooks/`.
