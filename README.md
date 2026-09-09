@@ -135,7 +135,10 @@ python -m src.rag.cli build                     # chunk -> embed -> Qdrant index
 python -m src.rag.cli ask "When should sepsis screening be started?"
 python -m src.rag.cli explain --patient P100007 # Gold NEWS2 row -> cited answer
 
-# (more stages added as they are implemented)
+# --- Stage 6 - run the whole pipeline with OpenLineage events -------------
+python -m src.pipeline --input data/raw/vitals_run.jsonl
+# writes START/COMPLETE (or FAIL) per stage to ./lineage_events.jsonl,
+# all sharing one parent run id
 ```
 
 ## Expected output
@@ -208,6 +211,22 @@ Retrieval (fused hybrid):
 
 An off-topic question ("gift shop hours") is refused - every chunk scores below
 the rerank floor.
+
+**Stage 6** - `python -m src.pipeline`:
+
+```
+pipeline run 01a0857f-294a-7157-83d2-1bb43550aa67
+lineage_events.jsonl:
+  START/COMPLETE  ingest        (vitals.raw -> bronze, vitals.deadletter)
+  START/COMPLETE  build_silver  (bronze -> silver)
+  START/COMPLETE  quality_gate  (silver)
+  START/COMPLETE  build_gold    (silver -> news2_scores)
+  START/COMPLETE  rag_index     (news2_scores -> clinical_guidelines)
+```
+
+With a poisoned Silver row the `quality_gate` stage emits `START` then `FAIL`
+(carrying the `ErrorMessageRunFacet`) and `build_gold` / `rag_index` emit
+nothing - the failure halts the run.
 
 Later stages capture their output under `notebooks/`.
 

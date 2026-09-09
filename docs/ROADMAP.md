@@ -49,8 +49,15 @@ Check off as we go.
       grounded + cited, off-topic question refused, Gold-window link.
       Evidence: "sepsis screening" -> cross-encoder promotes `sepsis-screening`
       from RRF rank ~5 to rank 1 (score +2.1); gift-shop question -> refused.
-- [ ] **Stage 6 — Lineage**: `src/lineage/emit.py`. Evidence: `lineage_events.jsonl`
-      with START/COMPLETE per stage and a FAIL event from a forced failure.
+- [x] **Stage 6 — Lineage**: `src/lineage/emit.py` - `Lineage.stage()` context
+      emits OpenLineage START on entry, COMPLETE on success, FAIL (with an
+      `ErrorMessageRunFacet`) on exception; all stages share one parent run;
+      input/output `Dataset`s per stage (Kafka topics, Delta paths, Qdrant
+      collection). `src/pipeline.py` wraps every stage and is what the Airflow
+      DAG calls. Tests: `test_lineage.py` (START->COMPLETE, START->FAIL + facet
+      + re-raise, shared parent). Evidence: a full run writes 10 events (5 stages
+      x START/COMPLETE); a poisoned Silver -> `quality_gate` emits START then FAIL
+      and `build_gold` / `rag_index` emit nothing.
 - [ ] **Stage 7 — Airflow DAG**: `dags/capstone_pipeline.py` + Airflow service in
       docker-compose. Evidence: green DAG run screenshot; a run where the quality
       gate fails and downstream tasks are skipped.

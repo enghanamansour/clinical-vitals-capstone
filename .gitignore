@@ -33,6 +33,10 @@ models/
 /gx/validations/
 /gx/uncommitted/
 
+# --- OpenLineage event logs (run artifacts) ---
+lineage_events.jsonl
+lineage*.jsonl
+
 # --- Airflow local ---
 airflow/logs/
 airflow.db
