@@ -227,5 +227,3 @@ SDAIA Academy on GitHub: https://github.com/SDAIAAcademy
 ## License
 
 Educational use.
-
-Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
