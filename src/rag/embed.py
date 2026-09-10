@@ -18,6 +18,8 @@ os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS", "1")  # copy, don't symlink (Wi
 
 from fastembed import TextEmbedding  # noqa: E402
 
+from src.rag.onnx_runtime import onnx_providers  # noqa: E402
+
 EMBED_DIM = 384  # BAAI/bge-small-en-v1.5
 
 _model: TextEmbedding | None = None
@@ -26,7 +28,10 @@ _model: TextEmbedding | None = None
 def _embedder() -> TextEmbedding:
     global _model
     if _model is None:
-        _model = TextEmbedding(model_name=settings.embedding_model)
+        _model = TextEmbedding(
+            model_name=settings.embedding_model,
+            providers=onnx_providers(),
+        )
     return _model
 
 

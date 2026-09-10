@@ -12,6 +12,7 @@ from fastembed.rerank.cross_encoder import TextCrossEncoder
 
 from config.settings import settings
 from src.rag.chunk import Chunk
+from src.rag.onnx_runtime import onnx_providers
 
 _reranker: TextCrossEncoder | None = None
 
@@ -19,7 +20,10 @@ _reranker: TextCrossEncoder | None = None
 def _model() -> TextCrossEncoder:
     global _reranker
     if _reranker is None:
-        _reranker = TextCrossEncoder(model_name=settings.reranker_model)
+        _reranker = TextCrossEncoder(
+            model_name=settings.reranker_model,
+            providers=onnx_providers(),
+        )
     return _reranker
 
 
