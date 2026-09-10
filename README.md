@@ -130,7 +130,7 @@ Expected tail:
 pipeline run <uuid>
   ingest:    {'consumed': 1000, 'valid': 894, 'rejected': 106}
   silver:    {'source_rows': 894, 'num_target_rows_inserted': 894, ...}
-  gold:      {'gold_rows': 139, 'silver_rows': 894, ...}
+  gold:      {'gold_rows': 126, 'silver_rows': 894, ...}
   rag_index: 22
 ```
 
@@ -157,7 +157,7 @@ python -m src.rag.cli explain --patient P100007          # a Gold NEWS2 row -> c
 ### 5. Tests
 
 ```powershell
-python -m pytest -q            # 98 pass; RAG/Gold integration tests skip without Qdrant
+python -m pytest -q            # 94 pass, 2 skip (Airflow-image DAG test; Gold-window RAG test)
 ```
 
 ## Expected output & evidence
@@ -207,7 +207,7 @@ clinical-vitals-capstone/
 │   ├── lineage/emit.py         # OpenLineage spans (deliverable 5)
 │   ├── rag/                    # chunk, embed, index, search, rerank, answer, cli (deliverable 3)
 │   └── pipeline.py             # stages wired with lineage; the Airflow tasks call these
-└── tests/                      # 98 tests
+└── tests/                      # 96 tests (94 pass, 2 environment-gated skips)
 ```
 
 ---

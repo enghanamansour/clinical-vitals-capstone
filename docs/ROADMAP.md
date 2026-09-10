@@ -26,7 +26,7 @@ Check off as we go.
       `(patient_id, window_start)`). Tests: `test_news2.py` (band boundaries + RCP
       examples), `test_silver_merge.py` (correction updates in place),
       `test_gold_aggregate.py` (Gold is a reduction, deterioration reflected).
-      Evidence: 1200 in -> 1074 Silver -> **139 Gold (7.7x reduction)**; a 5-row
+      Evidence: 1000 in -> 894 Silver -> **126 Gold (7.1x reduction)**; a 5-row
       correction batch -> `num_target_rows_updated=5, inserted=0`, Silver row
       count unchanged; delta-rs refuses wrong-type / extra-column writes.
 - [x] **Stage 4 — Quality gate**: `src/quality/expectations.py` - 14-expectation

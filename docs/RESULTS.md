@@ -11,19 +11,20 @@ Environment: Windows 11, Python 3.12, `deltalake` (delta-rs, no Spark/JVM),
 `fastembed` / ONNX Runtime for embeddings (PyTorch is blocked by Smart App
 Control on this machine), Kafka + Qdrant + Airflow via Docker.
 
-Test suite: **98 tests pass** (`python -m pytest -q`), plus RAG/Gold
-integration tests that skip when Qdrant is not reachable.
+Test suite: **94 pass, 2 skipped** (`python -m pytest -q`); the 2 skips are
+environment-gated (the DAG-parse test needs Airflow, the Gold-window RAG test
+needs a built Gold table).
 
 ---
 
 ## 1. Ingestion (Kafka + Pydantic contract + dead-letter) - 20 pts
 
 `python -m src.ingestion.producer` / `python -m src.ingestion.consumer`, run on
-a 1200-record batch (seed 11, 12% deliberately malformed):
+a 1000-record batch (seed 21, 10% deliberately malformed):
 
 ```
-published 1200 records to 'vitals.raw'
-consumed=1200  ->  bronze=1074   deadletter=126
+published 1000 records to 'vitals.raw'
+consumed=1000  ->  bronze=894   deadletter=106
 ```
 
 Every malformed record is rejected at the contract and routed to
@@ -36,15 +37,15 @@ DLQ p1@24  diagnosis: Extra inputs are not permitted
 DLQ p2@81  patient_id: String should match pattern '^P\d{6}$'
 ```
 
-Bronze afterwards: 1074 rows, all six vitals within their physiological ranges,
+Bronze afterwards: 894 rows, all six vitals within their physiological ranges,
 typed Delta schema. No malformed record reaches Bronze.
 
 ## 2. Delta Lakehouse (Bronze / Silver / Gold) - 25 pts
 
 ```
-silver merge   ->  source_rows=1074  inserted=1074  updated=0    (Silver total 1074)
-gold           ->  139 rows   = 7.7x reduction from Silver
-                   worst_risk_band: {'low': 135, 'high': 4}
+silver merge   ->  source_rows=894  inserted=894  updated=0    (Silver total 894)
+gold           ->  126 rows   = 7.1x reduction from Silver
+                   worst_risk_band: {'low': 122, 'high': 4}
 ```
 
 **Real MERGE upsert on the business key.** Re-sending 5 `reading_id`s with
@@ -52,7 +53,7 @@ changed vitals:
 
 ```
 merge metrics: num_target_rows_updated=5  num_target_rows_inserted=0
-Silver rows    before=1074  after=1074       (upsert in place, not appended)
+Silver rows    before=894  after=894         (upsert in place, not appended)
 ```
 
 **Gold is a genuine aggregate.** Deteriorating patient `P100007` across four
@@ -60,10 +61,10 @@ one-hour windows:
 
 | window | readings | mean NEWS2 | max NEWS2 | band | min SpO2 |
 |--------|----------|-----------|-----------|------|----------|
-| 05:00  | 4  | 5.5  | 11 | high | 91 |
-| 06:00  | 5  | 9.4  | 10 | high | 92 |
-| 07:00  | 6  | 12.0 | 16 | high | 90 |
-| 08:00  | 3  | 15.7 | 17 | high | 87 |
+| 14:00  | 3  | 5.0  | 8  | high | 93 |
+| 15:00  | 7  | 9.7  | 11 | high | 91 |
+| 16:00  | 8  | 11.0 | 12 | high | 90 |
+| 17:00  | 2  | 15.0 | 16 | high | 89 |
 
 **Schema enforcement.** delta-rs refuses a write whose `heart_rate` column is
 `string` instead of `int32`, and refuses an extra column
